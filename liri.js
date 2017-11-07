@@ -32,6 +32,10 @@ var spotify = new Spotify({
     secret: '8bbc9fa90d524501b8d48bdb0cca4a8e'
 });
 
+
+var firstLine = "/-----------------------------------------------";
+var lastLine = "\\-----------------------------------------------";
+
 // ------------------------
 // Createa a Prompt for The User 
 // ------------------------
@@ -77,31 +81,31 @@ inquirer
 // ------------------------
 
 function runCommand(command) {
+    console.log('runCommand', 'command:', command);
 
     switch (command) {
-            case "View Tweets":
-                displayMyTweets();
-                break;
-            case "Spotify This Song":
-                getSongDetails();
-                break;
-            case "Get Movie Details":
-                getMovieDetails();
-                break;
-            case "Not Sure, Let the computer choose":
-                doWhatItSays();
-                break;
-            default:
-                doWhatItSays();
-                break;
-        }
+        case "View Tweets":
+            displayMyTweets();
+            break;
+        case "Spotify This Song":
+            getSongDetails();
+            break;
+        case "Get Movie Details":
+            getMovieDetails();
+            break;
+        case "Not Sure, Let the computer choose":
+            doWhatItSays();
+            break;
+        default:
+            getSongDetails();
+            break;
+    }
 }
 
 function getSongDetails() {
     // Create a "Prompt" with a series of questions.
     inquirer
         .prompt([
-            // Here we create a basic text prompt.
             // Get the users name
             {
                 type: "input",
@@ -117,12 +121,21 @@ function getSongDetails() {
                     return console.log('Error occurred: ' + err);
                 }
                 var songInfo = data.tracks.items[0];
-                console.log("/-----------------------------------------------");
-                console.log("|  Artist     : ", songInfo.artists[0].name)
-                console.log("|  Song Name  : ", songInfo.name)
-                console.log("|  Album      : ", songInfo.album.name)
-                console.log("|  Preview URL: ", songInfo.preview_url)
-                console.log("\\-----------------------------------------------");
+                console.log(firstLine)
+                console.log()
+                console.log()
+                console.log()
+                console.log()
+                console.log(lastLine);
+
+                logResult(firstLine + "\n");
+                logResult("|  Artist     : ", songInfo.artists[0].name + "\n");
+                logResult("|  Song Name  : ", songInfo.name + "\n");
+                logResult("|  Album      : ", songInfo.album.name + "\n");
+                logResult("|  Preview URL: ", songInfo.preview_url + "\n");
+                logResult(lastLine);
+                logResult("\n\n\n");
+
             });
 
         });
@@ -155,19 +168,27 @@ function getMovieDetails(movieTitle) {
                 // If the request is successful (i.e. if the response status code is 200)
                 if (!error && response.statusCode === 200) {
 
-                    console.log("/-----------------------------------------------");
+
+                    console.log(firstLine);
                     console.log("|  Movie        : ", JSON.parse(body).Title)
                     console.log("|  Year         : ", JSON.parse(body).Year)
                     console.log("|  Rating (IMDB): ", JSON.parse(body).imdbRating)
-                    if (body.Ratings != null) {
-                        console.log("|  Rating (R.T.): ", JSON.parse(body).Ratings[1].Value)
-                    }
                     console.log("|  Country      : ", JSON.parse(body).Country)
                     console.log("|  Language     : ", JSON.parse(body).Language)
                     console.log("|  Plot.        : ", JSON.parse(body).Plot)
                     console.log("|  Actors.      : ", JSON.parse(body).Actors)
-                    console.log("\\-----------------------------------------------");
+                    console.log(lastLine);
 
+                    logResult(firstLine);
+                    logResult("\n|  Movie        : " + JSON.parse(body).Title + "\n");
+                    logResult("|  Year         : " + JSON.parse(body).Year + "\n");
+                    logResult("|  Rating (IMDB): " + JSON.parse(body).imdbRating + "\n");
+                    logResult("|  Country      : " + JSON.parse(body).Country + "\n");
+                    logResult("|  Language     : " + JSON.parse(body).Language + "\n");
+                    logResult("|  Plot.        : " + JSON.parse(body).Plot + "\n");
+                    logResult("|  Actors.      : " + JSON.parse(body).Actors + "\n");
+                    logResult(lastLine);
+                    logResult("\n\n\n");
                 }
             });
         });
@@ -180,18 +201,18 @@ function doWhatItSays() {
     //read random.txt and run 
     fs.readFile("random.txt", "utf8", function(error, data) {
 
-  // If the code experiences any errors it will log the error to the console.
-  if (error) {
-    return console.log(error);
-  }
+        // If the code experiences any errors it will log the error to the console.
+        if (error) {
+            return console.log(error);
+        }
 
-  // Then split it by commas (to make it more readable)
-  var [command, argument] = data.split(",");
-  console.log('command:', command);
+        // Then split it by commas (to make it more readable)
+        var [command, argument] = data.split(",");
+        console.log('command:', command);
 
-  runCommand(command.trim());
+        runCommand(command.trim());
 
-});
+    });
 
 
 
@@ -207,18 +228,40 @@ function displayMyTweets() {
                 console.log("/---------------------" + i + "-----------------------");
                 console.log("|  Tweet: ", tweets[i].text);
                 console.log("|  Created at: ", tweets[i].created_at);
-                console.log("|  moment", moment().format());
-                if (i < 10) {
-                    console.log("\\---------------------" + "-" + "-----------------------\n");
-                } else {
-                    console.log("\\---------------------" + "--" + "-----------------------\n");
-                }
+                console.log("\\---------------------" + "-" + "-----------------------\n");
+
+                logResult("/---------------------" + i + "-----------------------\n");
+                logResult("|  Tweet: " + tweets[i].text + "\n");
+                logResult("|  Created at: " + tweets[i].created_at + "\n");
+                logResult(lastLine);
+                logResult("\n\n");
+
+
+
+
+
 
             }
 
         }
     });
 }
+
+
+function logResult(resultString) {
+
+    fs.appendFile("log.txt", resultString, function(err) {
+
+        // If an error was experienced we say it.
+        if (err) {
+            console.log(err);
+        } else {
+
+        }
+    });
+
+}
+
 
 
 
